@@ -1,0 +1,431 @@
+{% extends "./loan_base.html" %}
+
+{% block sidebar %}
+  <a href="{% url 'loans:partner_applications_list' loan_type=loan_type %}"
+     class="back-link">← Back to {{ loan_type|title }} Applications</a>
+{% endblock sidebar %}
+{% block content %}
+  <!-- Application Header -->
+  <div class="application-header">
+    <div class="header-row">
+      <div class="header-info">
+        <h1>
+          {{ application.first_name }} {{ application.last_name }}'s Application
+          <span class="loan-type-badge {{ loan_type }}">{{ loan_type|title }}</span>
+        </h1>
+        <p class="reference">
+          <strong>Reference:</strong> {{ application.application_id }}
+        </p>
+      </div>
+      <div>
+        <span class="status-badge {{ application.status }}">{{ application.get_status_display }}</span>
+      </div>
+    </div>
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Created</span>
+        <span class="meta-value">{{ application.created_at|date:"d M Y, g:i A" }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Last Updated</span>
+        <span class="meta-value">{{ application.updated_at|date:"d M Y, g:i A" }}</span>
+      </div>
+      {% if application.submitted_at %}
+        <div class="meta-item">
+          <span class="meta-label">Submitted</span>
+          <span class="meta-value">{{ application.submitted_at|date:"d M Y, g:i A" }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Customer Information -->
+  <div class="detail-section">
+    <h2>Customer Information</h2>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Full Name</span>
+        <span class="detail-value">{{ application.first_name }} {{ application.last_name }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Email Address</span>
+        <span class="detail-value">{{ application.customer_email }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Phone Number</span>
+        <span class="detail-value">{{ application.phone_number }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Date of Birth</span>
+        <span class="detail-value">{{ application.customer_date_of_birth|date:"d M Y" }}</span>
+      </div>
+      {% if application.ird_number %}
+        <div class="detail-item">
+          <span class="detail-label">IRD Number</span>
+          <span class="detail-value">{{ application.ird_number }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Address Information -->
+  <div class="detail-section">
+    <h2>Address Information</h2>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Street Address</span>
+        <span class="detail-value">{{ application.street_address }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Suburb</span>
+        <span class="detail-value">{{ application.suburb }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">City</span>
+        <span class="detail-value">{{ application.city }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Postcode</span>
+        <span class="detail-value">{{ application.postcode }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Region</span>
+        <span class="detail-value">{{ application.get_region_display }}</span>
+      </div>
+    </div>
+  </div>
+  <!-- Financial Information -->
+  <div class="detail-section">
+    <h2>Financial Information</h2>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Annual Income</span>
+        <span class="detail-value">${{ application.annual_income|floatformat:2 }} NZD</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Employment Status</span>
+        <span class="detail-value">{{ application.get_employment_status_display }}</span>
+      </div>
+      {% if application.employer_name %}
+        <div class="detail-item">
+          <span class="detail-label">Employer Name</span>
+          <span class="detail-value">{{ application.employer_name }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Loan Details -->
+  <div class="detail-section">
+    <h2>Loan Details</h2>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Loan Amount Requested</span>
+        <span class="detail-value large">${{ application.loan_amount|floatformat:0 }} NZD</span>
+      </div>
+      <div class="detail-item detail-full">
+        <span class="detail-label">Loan Purpose</span>
+        <span class="detail-value">{{ application.loan_purpose }}</span>
+      </div>
+    </div>
+  </div>
+  <!-- Marketing Specific Details -->
+  {% if loan_type == 'marketing' %}
+    <div class="detail-section">
+      <h2>Business & Marketing Details</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Business Name</span>
+          <span class="detail-value">{{ application.business_name|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Business Type</span>
+          <span class="detail-value">{{ application.business_type|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Years in Business</span>
+          <span class="detail-value">{{ application.years_in_business|default:"—" }}</span>
+        </div>
+        {% if application.nzbn %}
+          <div class="detail-item">
+            <span class="detail-label">NZBN</span>
+            <span class="detail-value">{{ application.nzbn }}</span>
+          </div>
+        {% endif %}
+        <div class="detail-item">
+          <span class="detail-label">GST Registered</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.gst_registered|yesno:'true,false' }}">
+              {{ application.gst_registered|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item detail-full">
+          <span class="detail-label">Marketing Campaign Description</span>
+          <span class="detail-value">{{ application.marketing_campaign_description|default:"—" }}</span>
+        </div>
+        <div class="detail-item detail-full">
+          <span class="detail-label">Expected ROI</span>
+          <span class="detail-value">{{ application.expected_roi|default:"—" }}</span>
+        </div>
+        <div class="detail-item detail-full">
+          <span class="detail-label">Target Audience</span>
+          <span class="detail-value">{{ application.target_audience|default:"—" }}</span>
+        </div>
+        {% if application.digital_marketing_budget %}
+          <div class="detail-item">
+            <span class="detail-label">Digital Marketing Budget</span>
+            <span class="detail-value">${{ application.digital_marketing_budget|floatformat:2 }} NZD</span>
+          </div>
+        {% endif %}
+        {% if application.traditional_marketing_budget %}
+          <div class="detail-item">
+            <span class="detail-label">Traditional Marketing Budget</span>
+            <span class="detail-value">${{ application.traditional_marketing_budget|floatformat:2 }} NZD</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  <!-- Renovation Specific Details -->
+  {% if loan_type == 'renovation' %}
+    <div class="detail-section">
+      <h2>Property Information</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Property Address</span>
+          <span class="detail-value">{{ application.property_address|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Suburb</span>
+          <span class="detail-value">{{ application.property_suburb|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">City</span>
+          <span class="detail-value">{{ application.property_city|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Postcode</span>
+          <span class="detail-value">{{ application.property_postcode|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Region</span>
+          <span class="detail-value">{{ application.get_property_region_display }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Type</span>
+          <span class="detail-value">{{ application.get_property_type_display }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Ownership</span>
+          <span class="detail-value">{{ application.get_property_ownership_display }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h2>Renovation Details</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Renovation Type</span>
+          <span class="detail-value">{{ application.get_renovation_type_display }}</span>
+        </div>
+        <div class="detail-item detail-full">
+          <span class="detail-label">Renovation Description</span>
+          <span class="detail-value">{{ application.renovation_description|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Value Before</span>
+          <span class="detail-value">${{ application.estimated_property_value_before|floatformat:0 }} NZD</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Value After</span>
+          <span class="detail-value">${{ application.estimated_property_value_after|floatformat:0 }} NZD</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Building Consent Required</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.building_consent_required|yesno:'true,false' }}">
+              {{ application.building_consent_required|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Building Consent Obtained</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.building_consent_obtained|yesno:'true,false' }}">
+              {{ application.building_consent_obtained|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Contractor Quotes Obtained</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.contractor_quotes_obtained|yesno:'true,false' }}">
+              {{ application.contractor_quotes_obtained|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        {% if application.contractor_name %}
+          <div class="detail-item">
+            <span class="detail-label">Contractor Name</span>
+            <span class="detail-value">{{ application.contractor_name }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Contractor Licensed (LBP)</span>
+            <span class="detail-value">
+              <span class="boolean-value {{ application.contractor_licensed|yesno:'true,false' }}">
+                {{ application.contractor_licensed|yesno:"Yes,No" }}
+              </span>
+            </span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  <!-- Deposit Specific Details -->
+  {% if loan_type == 'deposit' %}
+    <div class="detail-section">
+      <h2>Property Information</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Property Address</span>
+          <span class="detail-value">{{ application.property_address|default:"Not yet identified" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Suburb</span>
+          <span class="detail-value">{{ application.property_suburb|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">City</span>
+          <span class="detail-value">{{ application.property_city|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Postcode</span>
+          <span class="detail-value">{{ application.property_postcode|default:"—" }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Region</span>
+          <span class="detail-value">{{ application.get_property_region_display }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Type</span>
+          <span class="detail-value">{{ application.get_property_type_display }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Property Identified</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.property_identified|yesno:'true,false' }}">
+              {{ application.property_identified|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h2>Purchase & Deposit Details</h2>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Purchase Price</span>
+          <span class="detail-value">${{ application.purchase_price|floatformat:0 }} NZD</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Deposit Amount Required</span>
+          <span class="detail-value large">${{ application.deposit_amount_required|floatformat:0 }} NZD</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">First Home Buyer</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.is_first_home_buyer|yesno:'true,false' }}">
+              {{ application.is_first_home_buyer|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">First Home Grant Approved</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.first_home_grant_approved|yesno:'true,false' }}">
+              {{ application.first_home_grant_approved|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">First Home Loan Approved</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.first_home_loan_approved|yesno:'true,false' }}">
+              {{ application.first_home_loan_approved|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Has Existing Mortgage</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.has_existing_mortgage|yesno:'true,false' }}">
+              {{ application.has_existing_mortgage|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        {% if application.existing_mortgage_balance %}
+          <div class="detail-item">
+            <span class="detail-label">Existing Mortgage Balance</span>
+            <span class="detail-value">${{ application.existing_mortgage_balance|floatformat:2 }} NZD</span>
+          </div>
+        {% endif %}
+        <div class="detail-item">
+          <span class="detail-label">Mortgage Pre-approval</span>
+          <span class="detail-value">
+            <span class="boolean-value {{ application.mortgage_pre_approval|yesno:'true,false' }}">
+              {{ application.mortgage_pre_approval|yesno:"Yes,No" }}
+            </span>
+          </span>
+        </div>
+        {% if application.mortgage_pre_approval_amount %}
+          <div class="detail-item">
+            <span class="detail-label">Pre-approval Amount</span>
+            <span class="detail-value">${{ application.mortgage_pre_approval_amount|floatformat:0 }} NZD</span>
+          </div>
+        {% endif %}
+        {% if application.kiwisaver_withdrawal_amount %}
+          <div class="detail-item">
+            <span class="detail-label">KiwiSaver Withdrawal</span>
+            <span class="detail-value">${{ application.kiwisaver_withdrawal_amount|floatformat:2 }} NZD</span>
+          </div>
+        {% endif %}
+        {% if application.other_deposit_sources %}
+          <div class="detail-item detail-full">
+            <span class="detail-label">Other Deposit Sources</span>
+            <span class="detail-value">{{ application.other_deposit_sources }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  <!-- Internal Notes -->
+  {% if application.internal_notes %}
+    <div class="detail-section">
+      <h2>Internal Notes</h2>
+      <div class="detail-value">{{ application.internal_notes }}</div>
+    </div>
+  {% endif %}
+  <!-- Actions -->
+  <div class="actions-section">
+    <div class="actions-left">
+      <a href="{% url 'loans:partner_applications_list' loan_type=loan_type %}"
+         class="btn btn-secondary">Back to List</a>
+    </div>
+    <div class="actions-right">
+      {% if application.status == 'draft' %}
+        <a href="{% url 'loans:' %}{{ loan_type }}_loan_application_continue"
+           pk="application"
+           .id
+           class="btn btn-primary">Continue Editing</a>
+      {% endif %}
+      {% if application.status == 'submitted' %}
+        <button class="btn btn-success"
+                onclick="alert('Status update functionality coming soon')">Mark Under Review</button>
+      {% endif %}
+      {% if application.status == 'under_review' %}
+        <button class="btn btn-success"
+                onclick="alert('Approval functionality coming soon')">Approve</button>
+        <button class="btn btn-danger"
+                onclick="alert('Rejection functionality coming soon')">Reject</button>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}

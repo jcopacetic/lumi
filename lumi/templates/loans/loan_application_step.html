@@ -1,0 +1,185 @@
+{% extends "./loan_base.html" %}
+
+{% block sidebar %}
+  <a href="{% url 'loans:all_loan_applications' %}{{ loan_type }}/"
+     class="back-link">← Back to {{ title }}</a>
+{% endblock sidebar %}
+{% block content %}
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    {% for i in "12" %}
+      <div class="progress-step {% if step == forloop.counter %}active{% elif step > forloop.counter %}completed{% endif %}">
+        <div class="step-circle {% if step == forloop.counter %}active{% elif step > forloop.counter %}completed{% endif %}">
+          {{ forloop.counter }}
+        </div>
+        <div class="step-label {% if step == forloop.counter %}active{% endif %}">
+          {% if forloop.counter == 1 %}
+            Personal Info
+          {% elif forloop.counter == 2 %}
+            {% if loan_type == 'marketing' %}
+              Marketing Details
+            {% elif loan_type == 'renovation' %}
+              Renovation Details
+            {% else %}
+              Property Details
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <!-- Step Content -->
+  <div class="step-content">
+    <h1>
+      {% if step == 1 %}
+        Personal Information
+      {% elif step == 2 %}
+        {% if loan_type == 'marketing' %}
+          Marketing Loan Details
+        {% elif loan_type == 'renovation' %}
+          Renovation Details
+        {% elif loan_type == 'deposit' %}
+          Property & Deposit Details
+        {% endif %}
+      {% endif %}
+    </h1>
+    <p class="step-description">
+      {% if step == 1 %}
+        Let's start with some basic information about you and your financial situation.
+      {% elif step == 2 %}
+        {% if loan_type == 'marketing' %}
+          Tell us about your business and marketing campaign plans.
+        {% elif loan_type == 'renovation' %}
+          Provide details about the property and renovation project.
+        {% elif loan_type == 'deposit' %}
+          Tell us about the property you're looking to purchase.
+        {% endif %}
+      {% endif %}
+    </p>
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}<div class="alert alert-{{ message.tags }}">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+    <form method="post" id="loanForm">
+      {% csrf_token %}
+      <div class="form-section">
+        {% for field in form %}
+          <div class="form-group {% if field.errors %}error{% endif %}">
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}
+              {% if field.field.required %}<span class="required">*</span>{% endif %}
+            </label>
+            {% if field.field.widget.input_type == 'checkbox' %}
+              <div class="form-check">
+                {{ field }}
+                <label for="{{ field.id_for_label }}">{{ field.help_text }}</label>
+              </div>
+            {% else %}
+              {{ field }}
+              {% if field.help_text %}<div class="helper-text">{{ field.help_text }}</div>{% endif %}
+            {% endif %}
+            {% if field.errors %}
+              <ul class="errorlist">
+                {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="form-actions">
+        <button type="submit" name="save_draft" class="save-draft">Save & Continue Later</button>
+        <div>
+          <a href="{% url 'loans:all_loan_applications' %}{{ loan_type }}/"
+             class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if step < total_steps %}
+              Next Step
+            {% else %}
+              Submit Application
+            {% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script>
+    // Auto-format NZ phone numbers
+    document.addEventListener('DOMContentLoaded', function() {
+      const phoneInput = document.querySelector('input[name="phone_number"]');
+      if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.startsWith('64')) {
+            value = '+' + value;
+          } else if (value.startsWith('0') && value.length > 1) {
+            // Format as 0XX XXX XXXX
+            if (value.length > 3) {
+              value = value.slice(0, 3) + ' ' + value.slice(3);
+            }
+            if (value.length > 7) {
+              value = value.slice(0, 7) + ' ' + value.slice(7, 11);
+            }
+          }
+        });
+      }
+
+      // Auto-format NZ postcode (4 digits)
+      const postcodeInputs = document.querySelectorAll('input[name="postcode"], input[name="property_postcode"]');
+      postcodeInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+      });
+
+      // Auto-format IRD number
+      const irdInput = document.querySelector('input[name="ird_number"]');
+      if (irdInput) {
+        irdInput.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length > 3) {
+            value = value.slice(0, 3) + '-' + value.slice(3);
+          }
+          if (value.length > 7) {
+            value = value.slice(0, 7) + '-' + value.slice(7, 10);
+          }
+          e.target.value = value;
+        });
+      }
+
+      // Auto-format NZBN
+      const nzbnInput = document.querySelector('input[name="nzbn"]');
+      if (nzbnInput) {
+        nzbnInput.addEventListener('input', function(e) {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 13);
+        });
+      }
+
+      // Show/hide conditional fields
+      const hasExistingMortgage = document.querySelector('input[name="has_existing_mortgage"]');
+      const existingMortgageBalance = document.querySelector('input[name="existing_mortgage_balance"]');
+
+      if (hasExistingMortgage && existingMortgageBalance) {
+        function toggleMortgageBalance() {
+          const balanceGroup = existingMortgageBalance.closest('.form-group');
+          if (hasExistingMortgage.checked) {
+            balanceGroup.style.display = 'block';
+          } else {
+            balanceGroup.style.display = 'none';
+          }
+        }
+
+        hasExistingMortgage.addEventListener('change', toggleMortgageBalance);
+        toggleMortgageBalance(); // Initial state
+      }
+
+      // Save draft with confirmation
+      const saveDraftBtn = document.querySelector('button[name="save_draft"]');
+      if (saveDraftBtn) {
+        saveDraftBtn.addEventListener('click', function(e) {
+          // Let form submit naturally, but could add confirmation here
+        });
+      }
+    });
+  </script>
+{% endblock content %}

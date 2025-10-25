@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block css %}
+  <style>
+    .test {
+      display: block;
+    }
+  </style>
+{% endblock css %}
+{% block content %}
+  <img class="img-fluid d-block mx-auto my-4"
+       style="width: 200px"
+       src="{% static 'images/brand/luminate-logo.webp' %}"
+       alt="" />
+  <h1 class="fw-bold text-center lh-1">
+    Luminate Financial Group
+    <br />
+    Partner Loan Portal
+  </h1>
+  {% if request.user.is_authenticated %}
+    <div class="row-fluid">
+      <div class="col-12 col-md-8 mx-auto">
+        <div class="text-center my-3">
+          <p class="lead">
+            Welcome to the Luminate Partner Portal! We value your partnership and are committed to providing you with easy access to loan applications, tracking tools, and resources to support your success.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="row-fluid">
+      <div class="col-12 col-md-8 mx-auto">
+        <div class="my-4 d-flex flex-row justify-content-around align-items-center">
+          <a class="btn btn-primary my-2"
+             href="{% url 'loans:all_loan_applications' %}">All Loan Applications</a>
+          <a class="btn btn-primary my-2"
+             href="{% url 'loans:all_applications_list' %}">Partner's Existing Applications</a>
+          <a class="btn btn-primary my-2" href="#">Partner's Dashboard</a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  <img class="img-fluid mx-auto d-block my-4"
+       style="border-radius: 20px"
+       width="679"
+       height="246"
+       src="{% static 'images/brand/splash.webp' %}"
+       alt=""
+       loading="lazy" />
+{% endblock content %}

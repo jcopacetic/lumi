@@ -1,0 +1,43 @@
+{% load static i18n %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  {% load static %}
+
+  <head>
+    {% include "base/meta_tags.html" %}
+    <title>
+      {% block title %}
+        Luminate Financial Group Loan Prortal
+      {% endblock title %}
+    </title>
+    {% include "base/paw.html" %}
+    {% include "base/favicon.html" %}
+    {% include "base/stylesheets.html" %}
+    {% block css %}
+    {% endblock css %}
+    {% include "base/head_scripts.html" %}
+    {% block javascript %}
+    {% endblock javascript %}
+    {% include "base/json_ld.html" %}
+    {% include "base/share_data.html" %}
+  </head>
+  <body class="{% block bodyclass %}{% endblock bodyclass %}">
+    {% block body %}
+      {% include "global/navigation.html" with user=request.user %}
+      {% include "global/sidebar.html" %}
+      <div class="stage{% if not user.is_authenticated %} full{% endif %}">
+        {% include "global/messages.html" with messages=messages %}
+        {% block main %}
+          {% block content %}
+            <p>Use this document as a way to quick start any new project.</p>
+          {% endblock content %}
+        {% endblock main %}
+      </div>
+    {% endblock body %}
+    {% block modal %}
+    {% endblock modal %}
+    {% block inline_javascript %}
+    {% endblock inline_javascript %}
+  </body>
+</html>

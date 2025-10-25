@@ -1,0 +1,122 @@
+{% extends "./loan_base.html" %}
+
+{% block sidebar %}
+  <a href="{% url 'loans:all_loan_applications' %}" class="back-link">← Back to Dashboard</a>
+{% endblock sidebar %}
+{% block content %}
+  <div class="applications-header">
+    <h1>{{ title }}</h1>
+    <span class="loan-type-badge {{ loan_type }}">{{ loan_type|title }}</span>
+  </div>
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <form method="get" class="filter-row">
+      <div class="filter-group">
+        <label for="status">Filter by Status</label>
+        <select name="status" id="status">
+          <option value="">All Statuses</option>
+          <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
+          <option value="submitted"
+                  {% if status_filter == 'submitted' %}selected{% endif %}>Submitted</option>
+          <option value="under_review"
+                  {% if status_filter == 'under_review' %}selected{% endif %}>Under Review</option>
+          <option value="approved"
+                  {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+          <option value="rejected"
+                  {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+          <option value="withdrawn"
+                  {% if status_filter == 'withdrawn' %}selected{% endif %}>Withdrawn</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn-filter">Apply Filter</button>
+        <a href="?" class="btn-clear">Clear</a>
+      </div>
+    </form>
+  </div>
+  <!-- Results Count -->
+  <div class="results-count">
+    <strong>{{ applications|length }}</strong> application{{ applications|length|pluralize }} found
+    {% if status_filter %}with status "{{ status_filter }}"{% endif %}
+  </div>
+  <!-- Applications Table -->
+  {% if applications %}
+    <div class="applications-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Customer</th>
+            {% if loan_type == 'marketing' %}
+              <th>Business Name</th>
+            {% elif loan_type == 'renovation' %}
+              <th>Property Address</th>
+            {% elif loan_type == 'deposit' %}
+              <th>Property City</th>
+            {% endif %}
+            <th>Loan Amount</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Last Updated</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+            <tr>
+              <td>
+                <strong>{{ app.application_id|truncatechars:13 }}</strong>
+              </td>
+              <td>
+                {{ app.first_name }} {{ app.last_name }}
+                <br />
+                <small>{{ app.customer_email }}</small>
+              </td>
+              {% if loan_type == 'marketing' %}
+                <td>{{ app.business_name|default:"—" }}</td>
+              {% elif loan_type == 'renovation' %}
+                <td>{{ app.property_address|default:"—" }}</td>
+              {% elif loan_type == 'deposit' %}
+                <td>{{ app.property_city|default:"—" }}</td>
+              {% endif %}
+              <td>
+                <strong>${{ app.loan_amount|floatformat:0 }}</strong>
+              </td>
+              <td>
+                <span class="status-badge {{ app.status }}">{{ app.get_status_display }}</span>
+              </td>
+              <td>{{ app.submitted_at|date:"d M Y"|default:"—" }}</td>
+              <td>{{ app.updated_at|date:"d M Y" }}</td>
+              <td>
+                <a href="{% url 'loans:application_detail' loan_type=loan_type pk=app.id %}"
+                   class="btn-view">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="applications-table">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          {% if loan_type == 'marketing' %}
+            📊
+          {% elif loan_type == 'renovation' %}
+            🏠
+          {% elif loan_type == 'deposit' %}
+            🏡
+          {% endif %}
+        </div>
+        <h3>No Applications Found</h3>
+        <p>
+          No {{ loan_type }} loan applications found
+          {% if status_filter %}with status "{{ status_filter }}"{% endif %}
+          .
+        </p>
+        <a href="{% url 'loans:' %}{{ loan_type }}_loan_application"
+           class="btn-new">Start New Application</a>
+      </div>
+    </div>
+  {% endif %}
+{% endblock content %}

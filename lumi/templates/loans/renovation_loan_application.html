@@ -1,0 +1,82 @@
+{% extends "./loan_base.html" %}
+
+{% block sidebar %}
+  <a href="{% url 'loans:all_loan_applications' %}" class="back-link">← Back to All Applications</a>
+{% endblock sidebar %}
+{% block content %}
+  <div class="loan-landing">
+    <h1>Renovation Loan Application</h1>
+    <p class="subtitle">Transform your property with financing for home improvements</p>
+    <div class="action-section">
+      <a href="{% url 'loans:renovation_loan_application_start' %}"
+         class="btn btn-primary">Start New Application</a>
+    </div>
+    <div class="loan-info">
+      <h2>About Renovation Loans</h2>
+      <p>
+        Our Renovation Loans help property owners fund improvements that add value,
+        functionality, and comfort to their homes or investment properties. Whether
+        you're planning a minor upgrade or a major transformation, we're here to help.
+      </p>
+      <h2>What You Can Use It For:</h2>
+      <ul>
+        <li>Kitchen and bathroom renovations</li>
+        <li>Home extensions and additions</li>
+        <li>Structural improvements and repairs</li>
+        <li>Energy efficiency upgrades</li>
+        <li>Landscaping and outdoor living spaces</li>
+        <li>Investment property refurbishments</li>
+      </ul>
+      <p>
+        <strong>Loan amounts:</strong> From $15,000 to $750,000
+        <br />
+        <strong>Application time:</strong> Approximately 5-10 minutes
+      </p>
+    </div>
+    <div class="retrieval-section">
+      <h3>Continue a Draft Application</h3>
+      <p>Already started an application? Enter your details below to continue where you left off.</p>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+               role="alert">
+            {{ message }}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      <form method="post" class="retrieval-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ retrieval_form.customer_email.id_for_label }}">Email Address</label>
+          {{ retrieval_form.customer_email }}
+        </div>
+        <div class="form-group">
+          <label for="{{ retrieval_form.customer_date_of_birth.id_for_label }}">Date of Birth</label>
+          {{ retrieval_form.customer_date_of_birth }}
+        </div>
+        <button type="submit" name="retrieve_application" class="btn-retrieve">Retrieve Application</button>
+      </form>
+      {% if draft_applications %}
+        <div class="draft-applications">
+          <h4>Recent Draft Applications</h4>
+          <ul class="draft-list">
+            {% for app in draft_applications %}
+              <li>
+                <div class="draft-info">
+                  <strong>{{ app.first_name }} {{ app.last_name }}</strong>
+                  <small>{{ app.customer_email }} | Started: {{ app.created_at|date:"M d, Y" }}</small>
+                </div>
+                <a href="{% url 'loans:renovation_loan_application_continue' pk=app.id %}"
+                   class="btn-continue">Continue</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}

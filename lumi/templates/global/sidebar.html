@@ -1,0 +1,40 @@
+{% if user.is_authenticated %}
+  <div class="sidebar d-flex flex-column justify-content-between align-items-center">
+    {% block sidebar %}
+    {% endblock sidebar %}
+    <div class="dropdown">
+      <a class="btn btn-secondary dropdown-toggle"
+         href="#"
+         role="button"
+         id="dropdownMenuLink"
+         data-bs-toggle="dropdown"
+         aria-expanded="false">Partner Menu</a>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <li>
+          <a class="dropdown-item" href="{% url 'loans:all_applications_list' %}">Existing Applications</a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">Partner Resources</a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="#">Partner Analytics</a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <a class="btn btn-primary btn-sm my-1"
+         href="https://luminate.co.nz"
+         target="_blank">Luminate Website</a>
+      <a class="btn btn-primary btn-sm my-1"
+         href="https://insights.luminate.co.nz"
+         target="_blank">Luminate Insights Blog</a>
+      <a class="btn btn-primary btn-sm my-1"
+         href="https://go.luminate.co.nz"
+         target="_blank">Luminate Resources</a>
+      <a class="btn btn-primary btn-sm my-1"
+         href="https://markethub.luminate.co.nz"
+         target="_blank">Luminate MarketHub</a>
+      <p class="copyright">© 2025 Luminate. All rights reserved.</p>
+    </div>
+  </div>
+{% endif %}
