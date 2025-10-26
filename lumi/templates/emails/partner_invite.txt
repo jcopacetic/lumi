@@ -1,0 +1,13 @@
+Hello {{ company_name }},
+
+You're invited to join our Loan Portal as a {{ partner.get_partner_type_display }}.
+
+Click the link below to set up your account:
+{{ signup_url }}
+
+This invitation will expire in 7 days.
+
+If you didn't expect this invitation, please ignore this message.
+
+Best regards,
+The Loan Portal Team

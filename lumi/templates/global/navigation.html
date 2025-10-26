@@ -40,6 +40,10 @@
             <a class="nav-link" href="{% url 'home' %}">{% translate "Home" %}</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'loans:all_loan_applications' %}">{% translate "Available Applications" %}</a>
+          </li>
+          {% comment %}
+          <li class="nav-item">
             <a class="nav-link" href="{% url 'loans:marketing_loan_application' %}">{% translate "Marketing Loan" %}</a>
           </li>
           <li class="nav-item">
@@ -48,6 +52,7 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'loans:deposit_loan_application' %}">{% translate "Deposit Loan" %}</a>
           </li>
+          {% endcomment %}
           <li class="nav-item ms-4">
             <a class="btn btn-primary" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
           </li>

@@ -1,7 +1,28 @@
+}
+{% load permission_tags %}
+
 {% if user.is_authenticated %}
   <div class="sidebar d-flex flex-column justify-content-between align-items-center">
     {% block sidebar %}
     {% endblock sidebar %}
+    {% if user|has_role:'admin' %}
+      <div class="card w-100">
+        <div class="card-header">Admin Menu</div>
+        <div class="card-body">
+          <ul class="list-group w-100">
+            <li class="list-group-item">
+              <a class="nav-link" href="{% url 'manager:dashboard' %}">Dashboard</a>
+            </li>
+            <li class="list-group-item">
+              <a class="nav-link" href="{% url 'manager:partner_list' %}">All Partners</a>
+            </li>
+            <li class="list-group-item">
+              <a class="nav-link" href="{% url 'manager:partner_create' %}">Add a Partner</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    {% endif %}
     <div class="dropdown">
       <a class="btn btn-secondary dropdown-toggle"
          href="#"

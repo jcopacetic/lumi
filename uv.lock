@@ -532,6 +532,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-role-permissions"
+version = "3.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c7/5b/c2b85791ca63f846ecc33561b9e486cccd8ee3cee906ec694c4e3b7b3f7d/django-role-permissions-3.2.0.tar.gz", hash = "sha256:5a89eaa098f3da951b4633e655d5f3188f3d6ec5f0b846a8b1690d094ddc6ea6", size = 16479, upload-time = "2023-06-09T20:31:32.42Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/21/03/baa0d85a7b82bf8fa02f31627d789f39245841975717fd93a973f1a35afc/django_role_permissions-3.2.0-py3-none-any.whl", hash = "sha256:39c4237e9ed2983c0d7fa38bd7f7c4942a04daac739d5be1921efccb074a0606", size = 12782, upload-time = "2023-06-09T20:31:30.853Z" },
+]
+
+[[package]]
 name = "django-stubs"
 version = "5.2.7"
 source = { registry = "https://pypi.org/simple" }
@@ -913,6 +925,7 @@ dependencies = [
     { name = "django-environ" },
     { name = "django-model-utils" },
     { name = "django-redis" },
+    { name = "django-role-permissions" },
     { name = "flower" },
     { name = "gunicorn" },
     { name = "hiredis" },
@@ -962,6 +975,7 @@ requires-dist = [
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-model-utils", specifier = "==5.0.0" },
     { name = "django-redis", specifier = "==6.0.0" },
+    { name = "django-role-permissions", specifier = "==3.2.0" },
     { name = "flower", specifier = "==2.0.1" },
     { name = "gunicorn", specifier = "==23.0.0" },
     { name = "hiredis", specifier = "==3.3.0" },

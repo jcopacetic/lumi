@@ -41,7 +41,9 @@ repos:
     rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
+        args: ['--ignore', 'H021,COMB12,ISC001']
       - id: djlint-django
+        args: ['--ignore', 'H021,COMB12,ISC001']
 
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}
+    Edit Partner
+  {% else %}
+    Add New Partner
+  {% endif %}
+{% endblock title %}
+{% block content %}
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <!-- Back Button -->
+        <div class="mb-3">
+          <a href="{% if object %}{% url 'manager:partner_detail' object.pk %}{% else %}{% url 'manager:partner_list' %}{% endif %}"
+             class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+        </div>
+        <!-- Form Card -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 py-3">
+            <h4 class="mb-0">
+              {% if object %}
+                <i class="bi bi-pencil text-primary"></i> Edit Partner
+              {% else %}
+                <i class="bi bi-plus-circle text-primary"></i> Add New Partner
+              {% endif %}
+            </h4>
+            <p class="text-muted small mb-0">
+              {% if not object %}An invitation email will be sent automatically after creation{% endif %}
+            </p>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+              {% endif %}
+              <!-- Company Name -->
+              <div class="mb-3">
+                <label for="{{ form.company_name.id_for_label }}" class="form-label fw-bold">
+                  Company Name <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control {% if form.company_name.errors %}is-invalid{% endif %}"
+                       id="{{ form.company_name.id_for_label }}"
+                       name="{{ form.company_name.name }}"
+                       value="{{ form.company_name.value|default:'' }}"
+                       required />
+                {% if form.company_name.errors %}<div class="invalid-feedback">{{ form.company_name.errors }}</div>{% endif %}
+                <small class="form-text text-muted">The official company or business name</small>
+              </div>
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">
+                  Email Address <span class="text-danger">*</span>
+                </label>
+                <input type="email"
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                       id="{{ form.email.id_for_label }}"
+                       name="{{ form.email.name }}"
+                       value="{{ form.email.value|default:'' }}"
+                       required />
+                {% if form.email.errors %}<div class="invalid-feedback">{{ form.email.errors }}</div>{% endif %}
+                <small class="form-text text-muted">
+                  {% if not object %}
+                    The invitation will be sent to this email address
+                  {% else %}
+                    Partner's primary contact email
+                  {% endif %}
+                </small>
+              </div>
+              <!-- Partner Type -->
+              <div class="mb-3">
+                <label for="{{ form.partner_type.id_for_label }}" class="form-label fw-bold">
+                  Partner Type <span class="text-danger">*</span>
+                </label>
+                <select class="form-select {% if form.partner_type.errors %}is-invalid{% endif %}"
+                        id="{{ form.partner_type.id_for_label }}"
+                        name="{{ form.partner_type.name }}"
+                        required>
+                  <option value="">-- Select Partner Type --</option>
+                  <option value="real_estate"
+                          {% if form.partner_type.value == 'real_estate' %}selected{% endif %}>Real Estate</option>
+                  <option value="family_office"
+                          {% if form.partner_type.value == 'family_office' %}selected{% endif %}>
+                    Family Office
+                  </option>
+                  <option value="mortgage_broker"
+                          {% if form.partner_type.value == 'mortgage_broker' %}selected{% endif %}>
+                    Mortgage Broker
+                  </option>
+                </select>
+                {% if form.partner_type.errors %}<div class="invalid-feedback">{{ form.partner_type.errors }}</div>{% endif %}
+                <small class="form-text text-muted">The vertical category of this partner</small>
+              </div>
+              <!-- Active Status -->
+              <div class="mb-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         id="{{ form.is_active.id_for_label }}"
+                         name="{{ form.is_active.name }}"
+                         {% if form.is_active.value or not object %}checked{% endif %} />
+                  <label class="form-check-label fw-bold"
+                         for="{{ form.is_active.id_for_label }}">Active Partner</label>
+                </div>
+                <small class="form-text text-muted d-block ms-4">Inactive partners cannot submit new loan applications</small>
+                {% if form.is_active.errors %}<div class="text-danger small mt-1">{{ form.is_active.errors }}</div>{% endif %}
+              </div>
+              <!-- Info Box -->
+              {% if not object %}
+                <div class="alert alert-info" role="alert">
+                  <i class="bi bi-info-circle"></i>
+                  <strong>What happens next?</strong>
+                  <ul class="mb-0 mt-2">
+                    <li>Partner record will be created with a unique invite token</li>
+                    <li>An invitation email will be sent automatically</li>
+                    <li>Partner clicks the link and creates their account</li>
+                    <li>Once accepted, they can start submitting loan applications</li>
+                  </ul>
+                </div>
+              {% endif %}
+              <!-- Form Actions -->
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a href="{% if object %}{% url 'manager:partner_detail' object.pk %}{% else %}{% url 'manager:partner_list' %}{% endif %}"
+                   class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-{% if object %}check-circle{% else %}plus-circle{% endif %}"></i>
+                  {% if object %}
+                    Update Partner
+                  {% else %}
+                    Create & Send Invite
+                  {% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Help Text -->
+        <div class="mt-3 text-muted small">
+          <p>
+            <i class="bi bi-question-circle"></i>
+            <strong>Need help?</strong> Partners will receive an email with a secure signup link.
+            They'll create their account and be automatically linked to your system.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

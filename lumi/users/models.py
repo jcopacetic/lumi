@@ -5,6 +5,11 @@ from django.db.models import CharField
 from django.db.models import EmailField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from rolepermissions.roles import assign_role
+from rolepermissions.roles import remove_role
+
+from config.roles import Admin
+from config.roles import Partner
 
 from .managers import UserManager
 
@@ -36,3 +41,15 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"pk": self.id})
+
+    def make_admin(self):
+        assign_role(self, Admin)
+
+    def remove_admin(self):
+        remove_role(self, Admin)
+
+    def make_partner(self):
+        assign_role(self, Partner)
+
+    def remove_partner(self):
+        remove_role(self, Partner)

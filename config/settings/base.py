@@ -67,8 +67,8 @@ DJANGO_APPS = [
     "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
+    "django.contrib.humanize",
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
@@ -79,6 +79,7 @@ THIRD_PARTY_APPS = [
     "allauth.mfa",
     "allauth.socialaccount",
     "django_celery_beat",
+    "rolepermissions",
 ]
 
 LOCAL_APPS = [
@@ -86,6 +87,7 @@ LOCAL_APPS = [
     # Your stuff: custom apps go here
     "lumi.loans",
     "lumi.partners",
+    "lumi.manager",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -326,3 +328,6 @@ SOCIALACCOUNT_FORMS = {"signup": "lumi.users.forms.UserSocialSignupForm"}
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+ROLEPERMISSIONS_MODULE = "config.roles"
+
+SITE_URL = "https://portal.luminate.co.nz"

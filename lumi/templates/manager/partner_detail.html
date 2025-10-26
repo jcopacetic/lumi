@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block title %}
+  {{ partner.company_name }} - Partner Detail
+{% endblock title %}
+{% block content %}
+  <div class="container-fluid py-4">
+    <!-- Back Button & Header -->
+    <div class="mb-3">
+      <a href="{% url 'manager:partner_list' %}"
+         class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Partners
+      </a>
+    </div>
+    <!-- Partner Header Card -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="d-flex align-items-start">
+              <div class="bg-primary bg-opacity-10 rounded p-3 me-3">
+                <i class="bi bi-building fs-1 text-primary"></i>
+              </div>
+              <div>
+                <h2 class="mb-1">{{ partner.company_name }}</h2>
+                <p class="text-muted mb-2">
+                  <i class="bi bi-envelope"></i> {{ partner.email }}
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <span class="badge bg-secondary">{{ partner.get_partner_type_display }}</span>
+                  {% if partner.is_active %}
+                    <span class="badge bg-success">
+                      <i class="bi bi-check-circle"></i> Active
+                    </span>
+                  {% else %}
+                    <span class="badge bg-danger">
+                      <i class="bi bi-x-circle"></i> Inactive
+                    </span>
+                  {% endif %}
+                  {% if partner.has_accepted %}
+                    <span class="badge bg-info">
+                      <i class="bi bi-person-check"></i> Invitation Accepted
+                    </span>
+                  {% elif partner.is_invite_expired %}
+                    <span class="badge bg-warning">
+                      <i class="bi bi-clock-history"></i> Invitation Expired
+                    </span>
+                  {% else %}
+                    <span class="badge bg-warning">
+                      <i class="bi bi-clock"></i> Invitation Pending
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <div class="btn-group" role="group">
+              <a href="{% url 'manager:partner_edit' partner.pk %}"
+                 class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+              {% if not partner.has_accepted %}
+                <a href="{% url 'manager:partner_resend_invite' partner.pk %}"
+                   class="btn btn-outline-info"
+                   onclick="return confirm('Resend invitation to {{ partner.email }}?')">
+                  <i class="bi bi-send"></i> Resend Invite
+                </a>
+              {% endif %}
+              <a href="{% url 'manager:partner_toggle_active' partner.pk %}"
+                 class="btn btn-outline-{% if partner.is_active %}danger{% else %}success{% endif %}"
+                 onclick="return confirm('{% if partner.is_active %}Deactivate{% else %}Activate{% endif %} this partner?')">
+                <i class="bi bi-{% if partner.is_active %}x-circle{% else %}check-circle{% endif %}"></i>
+                {% if partner.is_active %}
+                  Deactivate
+                {% else %}
+                  Activate
+                {% endif %}
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- Partner Metadata -->
+        <hr class="my-3" />
+        <div class="row text-muted small">
+          <div class="col-md-3">
+            <strong>Created:</strong> {{ partner.created_at|date:"d M Y, g:i A" }}
+          </div>
+          <div class="col-md-3">
+            <strong>Invited:</strong> {{ partner.invited_at|date:"d M Y, g:i A" }}
+          </div>
+          <div class="col-md-3">
+            <strong>Accepted:</strong> {{ partner.accepted_at|date:"d M Y, g:i A"|default:"—" }}
+          </div>
+          <div class="col-md-3">
+            <strong>Last Updated:</strong> {{ partner.updated_at|date:"d M Y, g:i A" }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Statistics Overview -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <h2 class="text-primary mb-1">{{ total_applications }}</h2>
+            <p class="text-muted small mb-0">Total Applications</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <h2 class="text-warning mb-1">{{ status_breakdown.under_review }}</h2>
+            <p class="text-muted small mb-0">Under Review</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <h2 class="text-success mb-1">{{ status_breakdown.approved }}</h2>
+            <p class="text-muted small mb-0">Approved</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center">
+            <h2 class="text-danger mb-1">{{ status_breakdown.rejected }}</h2>
+            <p class="text-muted small mb-0">Rejected</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Financial Overview -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted mb-3">Financial Metrics</h6>
+            <div class="border-start border-4 border-warning ps-3 mb-3">
+              <p class="text-muted small mb-1">Pending/Under Review</p>
+              <h4 class="mb-0">${{ total_loan_amount_submitted|floatformat:0|intcomma }}</h4>
+            </div>
+            <div class="border-start border-4 border-success ps-3">
+              <p class="text-muted small mb-1">Approved Loans</p>
+              <h4 class="mb-0">${{ total_loan_amount_approved|floatformat:0|intcomma }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted mb-3">Loan Type Distribution</h6>
+            <div class="d-flex align-items-center mb-2">
+              <span class="badge bg-primary me-2" style="width: 100px;">Marketing</span>
+              <div class="progress flex-grow-1" style="height: 20px;">
+                <div class="progress-bar bg-primary"
+                     role="progressbar"
+                     style="width: {% widthratio marketing_count total_applications 100 %}%">
+                  {{ marketing_count }}
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <span class="badge bg-success me-2" style="width: 100px;">Renovation</span>
+              <div class="progress flex-grow-1" style="height: 20px;">
+                <div class="progress-bar bg-success"
+                     role="progressbar"
+                     style="width: {% widthratio renovation_count total_applications 100 %}%">
+                  {{ renovation_count }}
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="badge bg-info me-2" style="width: 100px;">Deposit</span>
+              <div class="progress flex-grow-1" style="height: 20px;">
+                <div class="progress-bar bg-info"
+                     role="progressbar"
+                     style="width: {% widthratio deposit_count total_applications 100 %}%">{{ deposit_count }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Status Breakdown -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="text-muted mb-3">Application Status Breakdown</h6>
+        <div class="row text-center">
+          <div class="col">
+            <div class="p-2 bg-light rounded">
+              <h5 class="mb-0">{{ status_breakdown.draft }}</h5>
+              <small class="text-muted">Draft</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-2 bg-info bg-opacity-10 rounded">
+              <h5 class="mb-0 text-info">{{ status_breakdown.submitted }}</h5>
+              <small class="text-muted">Submitted</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-2 bg-warning bg-opacity-10 rounded">
+              <h5 class="mb-0 text-warning">{{ status_breakdown.under_review }}</h5>
+              <small class="text-muted">Under Review</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-2 bg-success bg-opacity-10 rounded">
+              <h5 class="mb-0 text-success">{{ status_breakdown.approved }}</h5>
+              <small class="text-muted">Approved</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-2 bg-danger bg-opacity-10 rounded">
+              <h5 class="mb-0 text-danger">{{ status_breakdown.rejected }}</h5>
+              <small class="text-muted">Rejected</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-2 bg-secondary bg-opacity-10 rounded">
+              <h5 class="mb-0 text-secondary">{{ status_breakdown.withdrawn }}</h5>
+              <small class="text-muted">Withdrawn</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Recent Activity -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Recent Activity</h5>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_activity %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Application ID</th>
+                  <th>Loan Type</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in recent_activity %}
+                  <tr>
+                    <td>
+                      <code>{{ app.application_id|truncatechars:13 }}</code>
+                    </td>
+                    <td>
+                      {% if app.loan_type == 'marketing' %}
+                        <span class="badge bg-primary">Marketing</span>
+                      {% elif app.loan_type == 'renovation' %}
+                        <span class="badge bg-success">Renovation</span>
+                      {% elif app.loan_type == 'deposit' %}
+                        <span class="badge bg-info">Deposit</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ app.first_name }} {{ app.last_name }}</td>
+                    <td>${{ app.loan_amount|floatformat:0|intcomma }}</td>
+                    <td>
+                      <span class="badge bg-{{ app.status }}">{{ app.get_status_display }}</span>
+                    </td>
+                    <td>
+                      <small class="text-muted">{{ app.updated_at|date:"d M Y" }}</small>
+                    </td>
+                    <td>
+                      <a href="{% url 'loans:application_detail' loan_type=app.loan_type pk=app.pk %}"
+                         class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">No applications yet</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- Application Sections by Type -->
+    <div class="row g-3">
+      <!-- Marketing Loans -->
+      <div class="col-lg-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <span class="badge bg-primary">Marketing</span> Loan Applications ({{ marketing_count }})
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            {% if marketing_applications %}
+              <div class="list-group list-group-flush">
+                {% for app in marketing_applications %}
+                  <a href="{% url 'loans:application_detail' loan_type='marketing' pk=app.pk %}"
+                     class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ app.first_name }} {{ app.last_name }}</h6>
+                        <small class="text-muted">{{ app.business_name }}</small>
+                      </div>
+                      <div class="text-end">
+                        <strong>${{ app.loan_amount|floatformat:0|intcomma }}</strong>
+                        <br />
+                        <span class="badge bg-{{ app.status }}">{{ app.get_status_display }}</span>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-3 text-muted">
+                <small>No marketing loan applications</small>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- Renovation Loans -->
+      <div class="col-lg-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <span class="badge bg-success">Renovation</span> Loan Applications ({{ renovation_count }})
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            {% if renovation_applications %}
+              <div class="list-group list-group-flush">
+                {% for app in renovation_applications %}
+                  <a href="{% url 'loans:application_detail' loan_type='renovation' pk=app.pk %}"
+                     class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ app.first_name }} {{ app.last_name }}</h6>
+                        <small class="text-muted">{{ app.property_address }}</small>
+                      </div>
+                      <div class="text-end">
+                        <strong>${{ app.loan_amount|floatformat:0|intcomma }}</strong>
+                        <br />
+                        <span class="badge bg-{{ app.status }}">{{ app.get_status_display }}</span>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-3 text-muted">
+                <small>No renovation loan applications</small>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- Deposit Loans -->
+      <div class="col-lg-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <span class="badge bg-info">Deposit</span> Loan Applications ({{ deposit_count }})
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            {% if deposit_applications %}
+              <div class="list-group list-group-flush">
+                {% for app in deposit_applications %}
+                  <a href="{% url 'loans:application_detail' loan_type='deposit' pk=app.pk %}"
+                     class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ app.first_name }} {{ app.last_name }}</h6>
+                        <small class="text-muted">{{ app.property_city }}</small>
+                      </div>
+                      <div class="text-end">
+                        <strong>${{ app.loan_amount|floatformat:0|intcomma }}</strong>
+                        <br />
+                        <span class="badge bg-{{ app.status }}">{{ app.get_status_display }}</span>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-3 text-muted">
+                <small>No deposit loan applications</small>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    /* Status badge colors */
+    .badge.bg-draft {
+      background-color: #6c757d !important;
+    }
+
+    .badge.bg-submitted {
+      background-color: #0dcaf0 !important;
+    }
+
+    .badge.bg-under_review {
+      background-color: #ffc107 !important;
+    }
+
+    .badge.bg-approved {
+      background-color: #198754 !important;
+    }
+
+    .badge.bg-rejected {
+      background-color: #dc3545 !important;
+    }
+
+    .badge.bg-withdrawn {
+      background-color: #6c757d !important;
+    }
+  </style>
+{% endblock content %}

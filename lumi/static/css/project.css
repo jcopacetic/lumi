@@ -1229,3 +1229,23 @@ textarea {
 table small {
   color: #999;
 }
+
+
+.card {
+  background: #efeeeb;
+  border-color: #dad6c9;
+}
+
+
+.card .card-header {
+  border-color: #dad6c9;
+}
+
+.card .list-group .list-group-item {
+  background: #efeeeb;
+}
+
+.card .list-group .list-group-item:hover {
+  background: #787878;
+  color: #fff;
+}
