@@ -29,4 +29,19 @@ urlpatterns = [
         views.resend_partner_invite,
         name="resend_invite",
     ),
+    path(
+        "profile/settings/",
+        views.partner_settings,
+        name="settings",
+    ),
+    path(
+        "resources/",
+        views.partner_resources,
+        name="resources",
+    ),
+    path(
+        "analytics/",
+        views.partner_analytics,
+        name="analytics",
+    ),
 ]

@@ -23,6 +23,7 @@ urlpatterns = [
     path("loans/", include("lumi.loans.urls")),
     path("partners/", include("lumi.partners.urls")),
     path("manager/", include("lumi.manager.urls")),
+    path("notifications/", include("lumi.notifications.urls")),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

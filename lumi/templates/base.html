@@ -39,5 +39,8 @@
     {% endblock modal %}
     {% block inline_javascript %}
     {% endblock inline_javascript %}
+    {% if request.user.is_authenticated %}
+      {% include "notifications/snippets/notifications_wrapper.html" %}
+    {% endif %}
   </body>
 </html>

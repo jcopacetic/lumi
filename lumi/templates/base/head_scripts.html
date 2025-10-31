@@ -15,4 +15,13 @@
         integrity="sha512-1OIiXEswZd/etj60BUwFmyoi0OhrWdoYlzayJpSBivoMV0pQPIQr+vtAn3W3htsbWtLRU8DrBl0epdK4DQbj/w=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
+<script defer>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("htmx:configRequest", (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+  });
+</script>
 <script defer src="{% static 'js/project.js' %}"></script>

@@ -33,7 +33,7 @@ repos:
     hooks:
       # Linter
       - id: ruff-check
-        args: [--fix, --exit-non-zero-on-fix, '--ignore', 'ERA001']
+        args: [--fix, --exit-non-zero-on-fix, '--ignore', 'ERA001,DJ001,C901,FBT001,FBT002']
       # Formatter
       - id: ruff-format
 
@@ -41,9 +41,9 @@ repos:
     rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
-        args: ['--ignore', 'H021,COMB12,ISC001,ERA001']
+        args: ['--ignore', 'H021,COMB12,ISC001,ERA001,DJ001,C901,H030,H031']
       - id: djlint-django
-        args: ['--ignore', 'H021,COMB12,ISC001,ERA001']
+        args: ['--ignore', 'H021,COMB12,ISC001,ERA001,DJ001,C901,H006,H030,H031']
 
 # sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
 ci:

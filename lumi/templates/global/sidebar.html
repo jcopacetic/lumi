@@ -1,4 +1,3 @@
-}
 {% load permission_tags %}
 
 {% if user.is_authenticated %}
@@ -32,13 +31,19 @@
          aria-expanded="false">Partner Menu</a>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
         <li>
+          <a class="dropdown-item" href="{% url 'partners:dashboard' %}">Dashboard</a>
+        </li>
+        <li>
           <a class="dropdown-item" href="{% url 'loans:all_applications_list' %}">Existing Applications</a>
         </li>
         <li>
-          <a class="dropdown-item" href="#">Partner Resources</a>
+          <a class="dropdown-item" href="{% url 'partners:resources' %}">Partner Resources</a>
         </li>
         <li>
-          <a class="dropdown-item" href="#">Partner Analytics</a>
+          <a class="dropdown-item" href="{% url 'partners:analytics' %}">Partner Analytics</a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'partners:settings' %}">Account Settings</a>
         </li>
       </ul>
     </div>

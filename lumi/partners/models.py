@@ -36,7 +36,53 @@ class Partner(models.Model):
         blank=True,
         help_text="User account (created after accepting invite)",
     )
-    email = models.EmailField(unique=True)
+
+    # Primary Contact Information (syncs to HubSpot Contact)
+    email = models.EmailField(
+        unique=True,
+        help_text="Primary contact email - used as HubSpot contact identifier",
+    )
+    primary_contact_first_name = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        verbose_name="First Name",
+    )
+    primary_contact_last_name = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        verbose_name="Last Name",
+    )
+    primary_contact_phone_number = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        verbose_name="Phone Number",
+    )
+
+    # Company Information (syncs to HubSpot Company)
+    company_name = models.CharField(max_length=255, verbose_name="Company Name")
+    company_phone = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        verbose_name="Company Phone",
+    )
+    company_email = models.EmailField(
+        null=True,
+        blank=True,
+        verbose_name="Company Email",
+        help_text="General company email (may differ from primary contact)",
+    )
+    domain = models.URLField(max_length=180, null=True, blank=True)
+    partner_type = models.CharField(
+        max_length=50,
+        choices=PARTNER_TYPE_CHOICES,
+        verbose_name="Partner Type",
+    )
+
+    # Invitation Management
     invite_token = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
@@ -45,8 +91,27 @@ class Partner(models.Model):
     )
     invited_at = models.DateTimeField(auto_now_add=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
-    partner_type = models.CharField(max_length=50, choices=PARTNER_TYPE_CHOICES)
-    company_name = models.CharField(max_length=255)
+
+    # HubSpot Integration Tracking
+    hubspot_contact_id = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="HubSpot Contact ID for primary contact",
+    )
+    hubspot_company_id = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="HubSpot Company ID",
+    )
+    last_synced_to_hubspot = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time this partner was synced to HubSpot",
+    )
+
+    # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -55,9 +120,20 @@ class Partner(models.Model):
         verbose_name = _("Partner")
         verbose_name_plural = _("Partners")
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["email"]),
+            models.Index(fields=["hubspot_contact_id"]),
+            models.Index(fields=["hubspot_company_id"]),
+        ]
 
     def __str__(self):
         return f"{self.company_name} ({self.get_partner_type_display()})"
+
+    @property
+    def primary_contact_full_name(self):
+        """Get the full name of the primary contact"""
+        parts = [self.primary_contact_first_name, self.primary_contact_last_name]
+        return " ".join(filter(None, parts)) or "N/A"
 
     def send_invite(self):
         """Send invitation email to partner"""
@@ -102,7 +178,7 @@ class Partner(models.Model):
         path = reverse("partners:partner_signup", kwargs={"token": self.invite_token})
         return f"{settings.SITE_URL}{path}"
 
-    def regenerate_invite_token(self, save=True):  # noqa: FBT002
+    def regenerate_invite_token(self, save=True):
         """Generate a new invite token (useful for re-invitations)"""
         self.invite_token = uuid.uuid4()
         self.invited_at = timezone.now()
@@ -141,3 +217,31 @@ class Partner(models.Model):
         if self.is_invite_expired():
             return "Expired"
         return "Pending"
+
+    @property
+    def needs_hubspot_sync(self):
+        """Check if partner data has changed since last HubSpot sync"""
+        if not self.last_synced_to_hubspot:
+            return True
+        return self.updated_at > self.last_synced_to_hubspot
+
+    def mark_synced_to_hubspot(self, contact_id=None, company_id=None):
+        """Update HubSpot sync timestamp and IDs"""
+        if contact_id:
+            self.hubspot_contact_id = contact_id
+        if company_id:
+            self.hubspot_company_id = company_id
+        self.last_synced_to_hubspot = timezone.now()
+        self.save(
+            update_fields=[
+                "hubspot_contact_id",
+                "hubspot_company_id",
+                "last_synced_to_hubspot",
+            ],
+        )
+        logger.info(
+            "Partner %s marked as synced to HubSpot (contact: %s, company: %s)",
+            self.email,
+            contact_id,
+            company_id,
+        )

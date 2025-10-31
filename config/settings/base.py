@@ -80,14 +80,17 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "django_celery_beat",
     "rolepermissions",
+    "channels",
 ]
 
 LOCAL_APPS = [
     "lumi.users",
     # Your stuff: custom apps go here
     "lumi.loans",
-    "lumi.partners",
+    "lumi.partners.apps.PartnersConfig",
     "lumi.manager",
+    "lumi.notifications",
+    "lumi.hubspot",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -191,6 +194,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "lumi.users.context_processors.allauth_settings",
+                "lumi.notifications.context_processors.notifications_processor.notifications_processor",
             ],
         },
     },
@@ -331,3 +335,17 @@ SOCIALACCOUNT_FORMS = {"signup": "lumi.users.forms.UserSocialSignupForm"}
 ROLEPERMISSIONS_MODULE = "config.roles"
 
 SITE_URL = "https://portal.luminate.co.nz"
+
+
+ASGI_APPLICATION = "config.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+HUBSPOT_ACCESS_TOKEN = env("HUBSPOT_ACCESS_TOKEN", default="")

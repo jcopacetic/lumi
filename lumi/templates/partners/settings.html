@@ -1,0 +1,261 @@
+{% extends "../base.html" %}
+
+{% block css %}
+  <style>
+    .settings-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .settings-header {
+      margin-bottom: 2rem;
+    }
+
+    .settings-card {
+      border: none;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      margin-bottom: 1.5rem;
+    }
+
+    .settings-card .card-header {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+    }
+
+    .settings-card .card-body {
+      padding: 1.5rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #495057;
+    }
+
+    .form-label.required::after {
+      content: " *";
+      color: #dc3545;
+    }
+
+    .form-text {
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+
+    .btn-save {
+      min-width: 120px;
+    }
+
+    .sync-status {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      background-color: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      color: #004085;
+    }
+
+    .sync-status i {
+      margin-right: 0.5rem;
+    }
+  </style>
+{% endblock css %}
+{% block content %}
+  <div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+      <h1 class="h2 mb-2">Partner Settings</h1>
+      <p class="text-muted">Manage your profile and company information</p>
+    </div>
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+             role="alert">
+          {{ message }}
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                  aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <!-- HubSpot Sync Status (Optional) -->
+    {% if partner.last_synced_to_hubspot %}
+      <div class="sync-status mb-4">
+        <i class="bi bi-check-circle-fill"></i>
+        Last synced to HubSpot: {{ partner.last_synced_to_hubspot|date:"F d, Y g:i A" }}
+      </div>
+    {% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <!-- Primary Contact Information -->
+      <div class="card settings-card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-person-circle me-2"></i>
+            Primary Contact Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.primary_contact_first_name.id_for_label }}"
+                     class="form-label required">{{ form.primary_contact_first_name.label }}</label>
+              {{ form.primary_contact_first_name }}
+              {% if form.primary_contact_first_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.primary_contact_first_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.primary_contact_last_name.id_for_label }}"
+                     class="form-label required">{{ form.primary_contact_last_name.label }}</label>
+              {{ form.primary_contact_last_name }}
+              {% if form.primary_contact_last_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.primary_contact_last_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.primary_contact_phone_number.id_for_label }}"
+                     class="form-label">{{ form.primary_contact_phone_number.label }}</label>
+              {{ form.primary_contact_phone_number }}
+              {% if form.primary_contact_phone_number.help_text %}
+                <div class="form-text">{{ form.primary_contact_phone_number.help_text }}</div>
+              {% endif %}
+              {% if form.primary_contact_phone_number.errors %}
+                <div class="invalid-feedback d-block">{{ form.primary_contact_phone_number.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Account Email</label>
+              <input type="email"
+                     class="form-control"
+                     value="{{ partner.email }}"
+                     disabled
+                     readonly />
+              <div class="form-text">This is your primary account email and cannot be changed here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Company Information -->
+      <div class="card settings-card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Company Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="{{ form.company_name.id_for_label }}"
+                     class="form-label required">{{ form.company_name.label }}</label>
+              {{ form.company_name }}
+              {% if form.company_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.company_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.domain.id_for_label }}" class="form-label">{{ form.domain.label }}</label>
+              {{ form.domain }}
+              {% if form.domain.help_text %}<div class="form-text">{{ form.domain.help_text }}</div>{% endif %}
+              {% if form.domain.errors %}<div class="invalid-feedback d-block">{{ form.domain.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.company_email.id_for_label }}" class="form-label">{{ form.company_email.label }}</label>
+              {{ form.company_email }}
+              {% if form.company_email.help_text %}<div class="form-text">{{ form.company_email.help_text }}</div>{% endif %}
+              {% if form.company_email.errors %}
+                <div class="invalid-feedback d-block">{{ form.company_email.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.company_phone.id_for_label }}" class="form-label">{{ form.company_phone.label }}</label>
+              {{ form.company_phone }}
+              {% if form.company_phone.help_text %}<div class="form-text">{{ form.company_phone.help_text }}</div>{% endif %}
+              {% if form.company_phone.errors %}
+                <div class="invalid-feedback d-block">{{ form.company_phone.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.partner_type.id_for_label }}"
+                     class="form-label required">{{ form.partner_type.label }}</label>
+              {{ form.partner_type }}
+              {% if form.partner_type.help_text %}<div class="form-text">{{ form.partner_type.help_text }}</div>{% endif %}
+              {% if form.partner_type.errors %}
+                <div class="invalid-feedback d-block">{{ form.partner_type.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Form Actions -->
+      <div class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'partners:dashboard' %}"
+           class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Cancel
+        </a>
+        <button type="submit" class="btn btn-primary btn-save">
+          <i class="bi bi-check-lg me-2"></i>Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+{% endblock content %}
+{% block inline_javascript %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-dismiss success messages after 5 seconds
+      const alerts = document.querySelectorAll('.alert-success');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }, 5000);
+      });
+
+      // Add validation classes on form submission
+      const form = document.querySelector('form');
+      form.addEventListener('submit', function(event) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(function(input) {
+          if (input.hasAttribute('required') && !input.value) {
+            input.classList.add('is-invalid');
+          } else {
+            input.classList.remove('is-invalid');
+          }
+        });
+      });
+
+      // Remove validation classes on input
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+          this.classList.remove('is-invalid');
+        });
+      });
+
+      // Phone number formatting (optional)
+      const phoneInputs = document.querySelectorAll('input[type="tel"]');
+      phoneInputs.forEach(function(input) {
+        input.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length >= 10) {
+            value = value.substring(0, 10);
+            e.target.value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
+          }
+        });
+      });
+    });
+  </script>
+{% endblock inline_javascript %}

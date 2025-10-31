@@ -1,0 +1,22 @@
+{% extends "../base.html" %}
+
+{% block content %}
+  <h1>Partner Dashboard</h1>
+  <ul>
+    <li>
+      <a href="{% url 'loans:all_loan_applications' %}">All Loan Applications</a>
+    </li>
+    <li>
+      <a href="{% url 'loans:all_applications_list' %}">Your Existing Applications</a>
+    </li>
+    <li>
+      <a href="{% url 'partners:settings' %}">Account Settings</a>
+    </li>
+    <li>
+      <a href="{% url 'partners:analytics' %}">Your Analytics</a>
+    </li>
+    <li>
+      <a href="{% url 'partners:resources' %}">Partner Resources</a>
+    </li>
+  </ul>
+{% endblock content %}

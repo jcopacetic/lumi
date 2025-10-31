@@ -1,6 +1,7 @@
 {% load i18n static %}
 
-<nav class="navbar navbar-expand-md navbar-light">
+<nav {% if user.is_authenticated %} hx-ext="ws" ws-connect="ws://127.0.0.1:8000/ws/partner/{{ request.user.partner_profile.id }}/notifications/" {% endif %}
+     class="navbar navbar-expand-md navbar-light">
   <div class="container-fluid">
     <button class="navbar-toggler navbar-toggler-right"
             type="button"
@@ -53,7 +54,8 @@
             <a class="nav-link" href="{% url 'loans:deposit_loan_application' %}">{% translate "Deposit Loan" %}</a>
           </li>
           {% endcomment %}
-          <li class="nav-item ms-4">
+          {% include "global/notifications_icon.html" %}
+          <li class="nav-item ms-3">
             <a class="btn btn-primary" href="{% url 'account_logout' %}">{% translate "Sign Out" %}</a>
           </li>
         {% else %}

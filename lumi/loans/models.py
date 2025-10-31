@@ -8,6 +8,9 @@ from django.utils.translation import gettext_lazy as _
 
 from lumi.partners.models import Partner
 
+from .encryption import decrypt_field  # We'll create this
+from .encryption import encrypt_field  # We'll create this
+
 User = get_user_model()
 
 
@@ -86,7 +89,14 @@ class BaseLoanApplication(models.Model):
 
     # Customer identification fields for retrieval
     customer_email = models.EmailField(validators=[EmailValidator()])
-    customer_date_of_birth = models.DateField()
+
+    # ENCRYPTED FIELD: Date of birth stored encrypted
+    _encrypted_customer_dob = models.BinaryField(
+        null=True,
+        blank=True,
+        editable=False,
+        db_column="encrypted_customer_dob",
+    )
 
     # Customer information
     first_name = models.CharField(max_length=100)
@@ -156,17 +166,12 @@ class BaseLoanApplication(models.Model):
     )
     employer_name = models.CharField(max_length=255, blank=True)
 
-    # IRD number (optional but common in NZ lending)
-    ird_number = models.CharField(
-        max_length=11,
+    # ENCRYPTED FIELD: IRD number stored encrypted
+    _encrypted_ird_number = models.BinaryField(
+        null=True,
         blank=True,
-        validators=[
-            RegexValidator(
-                regex=r"^\d{8,9}$",
-                message="Enter a valid IRD number (8-9 digits)",
-            ),
-        ],
-        help_text="IRD number (8-9 digits, optional)",
+        editable=False,
+        db_column="encrypted_ird_number",
     )
 
     # Loan details (NZD)
@@ -195,7 +200,9 @@ class BaseLoanApplication(models.Model):
     class Meta:
         abstract = True
         indexes = [
-            models.Index(fields=["customer_email", "customer_date_of_birth"]),
+            models.Index(
+                fields=["customer_email"],
+            ),  # Removed DOB from index since it's encrypted
             models.Index(fields=["partner", "status"]),
             models.Index(fields=["created_at"]),
         ]
@@ -203,16 +210,64 @@ class BaseLoanApplication(models.Model):
     def __str__(self):
         return f"{self.application_id} - {self.first_name} {self.last_name}"
 
+    # Property for customer_date_of_birth with encryption
+    @property
+    def customer_date_of_birth(self):
+        """Decrypt and return the customer's date of birth."""
+        if self._encrypted_customer_dob:
+            decrypted = decrypt_field(self._encrypted_customer_dob)
+            if decrypted:
+                from datetime import date
+
+                return date.fromisoformat(decrypted)
+        return None
+
+    @customer_date_of_birth.setter
+    def customer_date_of_birth(self, value):
+        """Encrypt and store the customer's date of birth"""
+        if value:
+            # Convert date to string for encryption
+            date_str = (
+                value.strftime("%Y-%m-%d") if hasattr(value, "strftime") else str(value)
+            )
+            self._encrypted_customer_dob = encrypt_field(date_str)
+        else:
+            self._encrypted_customer_dob = None
+
+    # Property for ird_number with encryption
+    @property
+    def ird_number(self):
+        """Decrypt and return the IRD number"""
+        if self._encrypted_ird_number:
+            return decrypt_field(self._encrypted_ird_number)
+        return None
+
+    @ird_number.setter
+    def ird_number(self, value):
+        """Encrypt and store the IRD number"""
+        if value:
+            self._encrypted_ird_number = encrypt_field(str(value))
+        else:
+            self._encrypted_ird_number = None
+
     @classmethod
     def find_application(cls, email, date_of_birth):
         """
-        Helper method to retrieve applications by email and DOB
-        Returns queryset of matching applications
+        Helper method to retrieve applications by email and DOB.
+        Returns a list of matching applications.
+
+        Note:
+            Since DOB is encrypted, we need to filter by email first,
+            then check DOB in Python code.
         """
-        return cls.objects.filter(
+        applications = cls.objects.filter(
             customer_email__iexact=email,
-            customer_date_of_birth=date_of_birth,
         ).order_by("-updated_at")
+
+        # Filter by DOB in Python since it's encrypted
+        return [
+            app for app in applications if app.customer_date_of_birth == date_of_birth
+        ]
 
 
 class MarketingLoanApplication(BaseLoanApplication):
@@ -223,49 +278,38 @@ class MarketingLoanApplication(BaseLoanApplication):
     business_type = models.CharField(max_length=100)
     years_in_business = models.IntegerField()
 
-    # NZBN (New Zealand Business Number)
-    nzbn = models.CharField(
-        max_length=13,
+    # ENCRYPTED FIELD: NZBN stored encrypted
+    _encrypted_nzbn = models.BinaryField(
+        null=True,
         blank=True,
-        validators=[
-            RegexValidator(
-                regex=r"^\d{13}$",
-                message="Enter a valid NZBN (13 digits)",
-            ),
-        ],
-        help_text="New Zealand Business Number (13 digits, optional)",
+        editable=False,
+        db_column="encrypted_nzbn",
     )
 
     marketing_campaign_description = models.TextField()
     expected_roi = models.TextField(help_text="Expected return on investment")
     target_audience = models.TextField()
 
-    # Marketing channels (NZD)
-    digital_marketing_budget = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Budget in NZD",
-    )
-    traditional_marketing_budget = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Budget in NZD",
-    )
-
-    # GST registration
-    gst_registered = models.BooleanField(
-        default=False,
-        help_text="Is the business GST registered?",
-    )
-
     class Meta:
         verbose_name = _("Marketing Loan Application")
         verbose_name_plural = _("Marketing Loan Applications")
         ordering = ["-created_at"]
+
+    # Property for NZBN with encryption
+    @property
+    def nzbn(self):
+        """Decrypt and return the NZBN"""
+        if self._encrypted_nzbn:
+            return decrypt_field(self._encrypted_nzbn)
+        return None
+
+    @nzbn.setter
+    def nzbn(self, value):
+        """Encrypt and store the NZBN"""
+        if value:
+            self._encrypted_nzbn = encrypt_field(str(value))
+        else:
+            self._encrypted_nzbn = None
 
 
 class RenovationLoanApplication(BaseLoanApplication):

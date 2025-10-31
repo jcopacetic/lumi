@@ -1,0 +1,112 @@
+{% extends "../base.html" %}
+
+{% block css %}
+  <style>
+    .card-title {
+      font-weight: 600;
+    }
+
+    .list-group-item {
+      border: none;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+{% endblock css %}
+{% block content %}
+  <section class="py-4">
+    <div class="container text-center">
+      <h2 class="fw-bold">Partner Resources</h2>
+      <p class="lead text-muted">
+        Tools and information to help you support your clients and grow with Luminate Financial Group.
+      </p>
+    </div>
+  </section>
+  <section class="py-4 bg-light">
+    <div class="container">
+      <h4 class="mb-3">Loan Products</h4>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Personal Loans</h5>
+              <p class="card-text">Flexible loans for clients’ personal needs with quick turnaround times.</p>
+              <a href="#" class="btn btn-primary btn-sm">Download Product Guide</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Vehicle Finance</h5>
+              <p class="card-text">Tailored finance options for new and used vehicles.</p>
+              <a href="#" class="btn btn-primary btn-sm">Download Rate Sheet</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Business Loans</h5>
+              <p class="card-text">Flexible funding solutions to help SMEs thrive.</p>
+              <a href="#" class="btn btn-primary btn-sm">View Application Guide</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-4">
+    <div class="container">
+      <h4 class="mb-3">Partner Tools</h4>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Loan Application Portal
+          <a href="#" class="btn btn-outline-primary btn-sm">Open Portal</a>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Application Tracker
+          <a href="#" class="btn btn-outline-primary btn-sm">Track Progress</a>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Loan Calculator
+          <a href="#" class="btn btn-outline-primary btn-sm">Launch Calculator</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section class="py-4 bg-light">
+    <div class="container">
+      <h4 class="mb-3">Training & Marketing</h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Partner Onboarding Webinar</h5>
+              <p class="card-text">Watch a recorded session to learn about the Luminate partner process.</p>
+              <a href="#" class="btn btn-outline-secondary btn-sm">Watch Webinar</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Marketing Toolkit</h5>
+              <p class="card-text">Download ready-to-use assets: banners, email templates, and co-branded PDFs.</p>
+              <a href="#" class="btn btn-outline-secondary btn-sm">Download Toolkit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-4">
+    <div class="container text-center">
+      <h4>Need Help?</h4>
+      <p class="text-muted mb-3">Our Partner Support team is here for you.</p>
+      <a href="mailto:partners@luminate.co.nz" class="btn btn-primary me-2">Email Support</a>
+      <a href="#" class="btn btn-outline-primary">Book a Call</a>
+    </div>
+  </section>
+{% endblock content %}
+{% block inline_javascript %}
+{% endblock inline_javascript %}

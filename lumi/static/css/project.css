@@ -1249,3 +1249,89 @@ table small {
   background: #787878;
   color: #fff;
 }
+
+
+#notificationsContainer {
+  width: 400px;
+  background: #dad6c9;
+  position: fixed;
+  top: 84px;
+  right: 8px;
+  left: auto;
+  bottom: 8px;
+  border-radius: 12px;
+  -webkit-box-shadow: 0px 0px 15px 3px #787878;
+box-shadow: 0px 0px 15px 3px #787878;
+}
+
+#notificationsContainer.hide {
+  right: -450px;
+  left: auto;
+  opacity: 0;
+  max-width: 0;
+  visibility: hidden;
+}
+
+/* Add this to your main CSS file or in a <style> block */
+
+/* Notification Bell Button Styling */
+#notificationButton {
+    color: var(--bs-body-color);
+    transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+#notificationButton:hover {
+    color: var(--bs-primary);
+    transform: scale(1.1);
+}
+
+#notificationButton:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Notification Badge Animation */
+#notificationBadge {
+    animation: pulse 2s infinite;
+    font-size: 0.65rem;
+    padding: 0.25em 0.4em;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+/* Remove animation on hover to reduce distraction */
+#notificationButton:hover #notificationBadge {
+    animation: none;
+}
+
+/* Make sure the badge stays visible on mobile */
+@media (max-width: 768px) {
+    #notificationBadge {
+        font-size: 0.6rem;
+    }
+}
+
+.notification-block.notification-seen {
+  opacity: .6;
+  transition: .2s ease all;
+  -webkit-transition: .2s ease all;
+}
+
+
+.notification-block.notification-seen:hover {
+  opacity: 1;
+  transition: .2s ease all;
+  -webkit-transition: .2s ease all;
+}

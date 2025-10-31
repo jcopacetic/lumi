@@ -36,7 +36,7 @@
              href="{% url 'loans:all_loan_applications' %}">All Loan Applications</a>
           <a class="btn btn-primary my-2"
              href="{% url 'loans:all_applications_list' %}">Partner's Existing Applications</a>
-          <a class="btn btn-primary my-2" href="#">Partner's Dashboard</a>
+          <a class="btn btn-primary my-2" href="{% url 'partners:dashboard' %}">Partner's Dashboard</a>
         </div>
       </div>
     </div>
@@ -47,5 +47,7 @@
        height="246"
        src="{% static 'images/brand/splash.webp' %}"
        alt=""
+       height="249"
+       width="679"
        loading="lazy" />
 {% endblock content %}

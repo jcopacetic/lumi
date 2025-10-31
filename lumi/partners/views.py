@@ -1,11 +1,14 @@
 from allauth.account.views import SignupView
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.shortcuts import render
 from django.views.generic import TemplateView
 
+from lumi.partners.forms import PartnerProfileForm
 from lumi.partners.forms import PartnerSignupForm
 from lumi.partners.models import Partner
 
@@ -85,21 +88,18 @@ class PartnerDashboardView(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         """Ensure user has a partner profile"""
+        # Let LoginRequiredMixin handle anonymous users first
+        if not request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+
         try:
             self.partner = request.user.partner_profile
         except Partner.DoesNotExist:
-            messages.error(
-                request,
-                "You don't have access to the partner \
-                           portal.",
-            )
+            messages.error(request, "You don't have access to the partner portal.")
             return redirect("account_login")
 
         if not self.partner.is_active:
-            return HttpResponseForbidden(
-                "Your partner account has been \
-                                         deactivated.",
-            )
+            return HttpResponseForbidden("Your partner account has been deactivated.")
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -168,3 +168,34 @@ def resend_partner_invite(request, pk):
             messages.error(request, f"Failed to resend invite: {e!s}")
 
     return redirect("admin:partners_partner_change", partner.pk)
+
+
+@login_required
+def partner_settings(request):
+    partner = request.user.partner_profile
+
+    if request.method == "POST":
+        form = PartnerProfileForm(request.POST, instance=partner)
+        if form.is_valid():
+            form.save()
+            # Trigger HubSpot sync here or via signal
+            messages.success(request, "Profile updated successfully!")
+            return redirect("partners:settings")
+    else:
+        form = PartnerProfileForm(instance=partner)
+
+    return render(request, "partners/settings.html", {"form": form})
+
+
+@login_required
+def partner_resources(request):
+    context = {}
+
+    return render(request, "partners/resources.html", context)
+
+
+@login_required
+def partner_analytics(request):
+    context = {}
+
+    return render(request, "partners/analytics.html", context)

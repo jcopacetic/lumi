@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div id="notificationsContainer"
+     hx-swap-oob="true"
+     {% if display != "true" %}style="display: none;"{% endif %}>
+  {% if notifications %}
+    {% for notification in notifications %}
+      {% include "notifications/snippets/notification.html" with notification=notification %}
+    {% endfor %}
+  {% else %}
+    <div class="p-3 text-center text-muted">{% translate "No new notifications" %}</div>
+  {% endif %}
+</div>
